@@ -28,18 +28,17 @@ class Client(models.Model):
     status = models.CharField(verbose_name="Статус", help_text="Статус", max_length=1, choices=CLIENT_STATUS_CHOICES)
     rating = models.FloatField(verbose_name="Рейтинг", help_text="Рейтинг")
     follows = models.ManyToManyField("self", verbose_name="Подписки", help_text="Подписки",
-                                     on_delete=models.CASCADE, symmetrical=False)
+                                     symmetrical=False, related_name="followers")
     bio = models.CharField(verbose_name="Краткая информация", help_text="Краткая информация", max_length=200)
     about = models.TextField(verbose_name="Информация о профиле", help_text="Информация о профиле")
-    photos = models.OneToOneField(Photos, on_delete=models.CASCADE, verbose_name="Фотографии",
-                                  help_text="Фотографии")
+    photos = models.OneToOneField(Photos, verbose_name="Фотографии", help_text="Фотографии", on_delete=models.CASCADE)
 
 
 class Price(models.Model):
     needed = models.FloatField(verbose_name="Нужно денег", help_text="Нужно денег")
     has = models.FloatField(verbose_name="Имеется денег", help_text="Имеется денег")
     kind = models.CharField(max_length=1, choices=PRICE_KIND_CHOICES, verbose_name="Вид оплаты", help_text="Вид оплаты")
-    donators = models.ManyToManyField(Client, on_delete=models.CASCADE, verbose_name="Донатеры", help_text="Донатеры")
+    donators = models.ManyToManyField(Client, verbose_name="Донатеры", help_text="Донатеры", related_name="donated")
 
 
 class Lot(models.Model):
@@ -50,5 +49,5 @@ class Lot(models.Model):
     owner = models.OneToOneField(Client, on_delete=models.CASCADE, verbose_name="Владелец лота",
                                  help_text="Владец лота")
     buyer = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name="Покупатели лота",
-                              help_text="Покупатели лота")
-    likes = models.ManyToManyField(Client, on_delete=models.CASCADE, verbose_name="Лайкнули", help_text="Лайкнули")
+                              help_text="Покупатели лота", related_name="lots_bought")
+    likes = models.ManyToManyField(Client, verbose_name="Лайкнули", help_text="Лайкнули", related_name="liked")
