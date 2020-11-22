@@ -12,3 +12,9 @@ class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
         fields = "__all__"
+
+
+class LotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lot
+        fields = "__all__"

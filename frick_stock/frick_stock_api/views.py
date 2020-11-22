@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -41,7 +42,51 @@ class FollowsView(APIView):
         pass
 
 
-class UserView(APIView):
-    """ Методы для получения информации о пользователе """
+class ClientDetailView(APIView):
+    """ Методы для работы с информацией о пользователе """
     def get(self, request):
+        """ Возвращает информацию о заданном пользователе """
+        client_id = request.GET.get("id", "")
+        try:
+            client = Client.objects.get(id=client_id)
+        except ValueError:
+            return Response({
+                "status": "error",
+                "error": "Пропущен параметр -- id пользователя (id=...)"
+            })
+        except ObjectDoesNotExist:
+            return Response({
+                "status": "error",
+                "error": "Пользователя с заданными параметрами не существует"
+            })
 
+        serializer = ClientSerializer(client)
+        return Response({
+            "status": "ok",
+            "data": serializer.data
+        })
+
+
+class LotDetailView(APIView):
+    """ Методы для работы с информацией о лотах """
+    def get(self, request):
+        """ Возвращает информацию о заданном лоте """
+        lot_id = request.GET.get("id", "")
+        try:
+            lot = Lot.objects.get(id=lot_id)
+        except ValueError:
+            return Response({
+                "status": "error",
+                "error": "Пропущен параметр -- id лота (id=...)"
+            })
+        except ObjectDoesNotExist:
+            return Response({
+                "status": "error",
+                "error": "Лота с заданными параметрами не существует"
+            })
+
+        serializer = LotSerializer(lot)
+        return Response({
+            "status": "ok",
+            "data": serializer.data
+        })
