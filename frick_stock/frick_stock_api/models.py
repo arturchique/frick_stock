@@ -27,11 +27,17 @@ class Client(models.Model):
     name = models.CharField(verbose_name="Имя", help_text="Имя", max_length=40)
     status = models.CharField(verbose_name="Статус", help_text="Статус", max_length=1, choices=CLIENT_STATUS_CHOICES)
     rating = models.FloatField(verbose_name="Рейтинг", help_text="Рейтинг")
-    follows = models.ManyToManyField("self", verbose_name="Подписки", help_text="Подписки",
-                                     symmetrical=False, related_name="followers")
+    follows = models.ManyToManyField("self", verbose_name="Подписки", help_text="Подписки", null=True,
+                                     symmetrical=False, related_name="followers", blank=True)
     bio = models.CharField(verbose_name="Краткая информация", help_text="Краткая информация", max_length=200)
     about = models.TextField(verbose_name="Информация о профиле", help_text="Информация о профиле")
-    photos = models.OneToOneField(Photos, verbose_name="Фотографии", help_text="Фотографии", on_delete=models.CASCADE)
+    photos = models.OneToOneField(Photos, verbose_name="Фотографии", help_text="Фотографии",
+                                  on_delete=models.CASCADE, blank=True, null=True)
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
 
 
 class Price(models.Model):
