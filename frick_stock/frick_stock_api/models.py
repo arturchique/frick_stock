@@ -62,4 +62,4 @@ class Lot(models.Model):
     likes = models.ManyToManyField(Client, verbose_name="Лайкнули", help_text="Лайкнули", related_name="liked",
                                    blank=True, null=True)
     status = models.CharField(verbose_name="Статус лота", help_text="Статус лота", choices=LOT_STATUS_CHOICES,
-                              max_length=1)
+                              max_length=1, blank=True, null=True)
