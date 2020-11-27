@@ -114,7 +114,7 @@ class ClientFilterView(APIView):
         clients = Client.objects.filter(status__in=status,
                                         rating__gte=filters["rating"]["from"],
                                         reting__lte=filters["rating"]["to"],
-                                        name_icontains=search_request)
+                                        name__icontains=search_request)
         paginator = Paginator(clients, 15)
         paged_listings = paginator.get_page(page)
         serializer = ClientSerializer(paged_listings, many=True)
