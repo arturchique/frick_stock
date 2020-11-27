@@ -91,7 +91,7 @@ class ClientFilterView(APIView):
             clients = Client.objects.filter(name__icontains=search_request)
             paginator = Paginator(clients, 15)
             paged_listings = paginator.get_page(page)
-            serializer = LotSerializer(paged_listings, many=True)
+            serializer = ClientSerializer(paged_listings, many=True)
             return Response({
                 "status": "ok",
                 "data": {
@@ -117,7 +117,7 @@ class ClientFilterView(APIView):
                                         name_icontains=search_request)
         paginator = Paginator(clients, 15)
         paged_listings = paginator.get_page(page)
-        serializer = LotSerializer(paged_listings, many=True)
+        serializer = ClientSerializer(paged_listings, many=True)
         return Response({
             "status": "ok",
             "data": {
