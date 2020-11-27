@@ -89,7 +89,7 @@ class ClientFilterView(APIView):
         if not filters:
             # Возвращает список фильтров и неотфильтрованные лоты, если фильтры не заданы клиентом
             clients = Client.objects.filter(name__icontains=search_request)
-            paginator = Paginator(clients, 1)
+            paginator = Paginator(clients, 15)
             paged_listings = paginator.get_page(page)
             serializer = ClientSerializer(paged_listings, many=True)
             return Response({
@@ -115,7 +115,7 @@ class ClientFilterView(APIView):
                                         rating__gte=filters["rating"]["from"],
                                         reting__lte=filters["rating"]["to"],
                                         name_icontains=search_request)
-        paginator = Paginator(clients, 1)
+        paginator = Paginator(clients, 15)
         paged_listings = paginator.get_page(page)
         serializer = ClientSerializer(paged_listings, many=True)
         return Response({
