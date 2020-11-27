@@ -9,4 +9,5 @@ urlpatterns = [
     path("user/", ClientDetailView.as_view()),
     path("lot/", LotDetailView.as_view()),
     path("lots/filter/", LotFilterView.as_view()),
+    path("clients/filter", ClientFilterView.as_view()),
 ]
