@@ -71,6 +71,63 @@ class ClientDetailView(APIView):
         })
 
 
+class ClientFilterView(APIView):
+    """ Класс, отвечающий за фильтрацию и поиск клиентов """
+
+    def post(self, request):
+        """ Возвращает отфильтрованных клиентов или список фильтров с вариантами """
+        try:
+            search_request = request.data["search"]
+            page = request.data["page"] or 1
+            filters = request.data["filters"]
+        except KeyError:
+            return Response({
+                "status": "error",
+                "data": "Пропущен один или несколько обязательных параметров (search, page, filters)"
+            })
+
+        if not filters:
+            # Возвращает список фильтров и неотфильтрованные лоты, если фильтры не заданы клиентом
+            clients = Client.objects.filter(name__icontains=search_request)
+            paginator = Paginator(clients, 15)
+            paged_listings = paginator.get_page(page)
+            serializer = LotSerializer(paged_listings, many=True)
+            return Response({
+                "status": "ok",
+                "data": {
+                    "filters": {
+                        "rating": {
+                            "from": 0,
+                            "to": 10,
+                        },
+                        "status": {
+                            "b": False,
+                            "o": True,
+                        },
+                    },
+                    "clients": serializer.data,
+                    "total_page_count": paginator.num_pages
+                }
+            })
+        # Код далее не выполнится, если от клиента поступил запрос с пустыми фильтрами
+        status = (key for key, value in filters["status"] if value is True)
+        clients = Client.objects.filter(status__in=status,
+                                        rating__gte=filters["rating"]["from"],
+                                        reting__lte=filters["rating"]["to"],
+                                        name_icontains=search_request)
+        paginator = Paginator(clients, 15)
+        paged_listings = paginator.get_page(page)
+        serializer = LotSerializer(paged_listings, many=True)
+        return Response({
+            "status": "ok",
+            "data": {
+                "filters": filters,
+                "clients": serializer.data,
+                "total_page_count": paginator.num_pages
+            }
+        })
+
+
 class LotDetailView(APIView):
     """ Методы для работы с информацией о лотах """
 
@@ -98,7 +155,7 @@ class LotDetailView(APIView):
 
 
 class LotFilterView(APIView):
-    """ Класс отвечающий за фильтрацию и поиск лотов """
+    """ Класс, отвечающий за фильтрацию и поиск лотов """
 
     def post(self, request):
         """ Возвращает отфильтрованные лоты или список фильтров с вариантами """

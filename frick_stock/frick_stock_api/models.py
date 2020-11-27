@@ -5,9 +5,9 @@ from datetime import datetime
 
 USER = get_user_model()
 
-CLIENT_STATUS_CHOICES = (
-    ("b", "buyer"),
-    ("s", "seller"),
+LOT_STATUS_CHOICES = (
+    ("b", "Куплю"),
+    ("s", "Продам"),
 )
 
 PRICE_KIND_CHOICES = (
@@ -25,7 +25,8 @@ class Photos(models.Model):
 class Client(models.Model):
     user = models.OneToOneField(USER, verbose_name="Пользователь", on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Имя", help_text="Имя", max_length=40)
-    status = models.CharField(verbose_name="Статус", help_text="Статус", max_length=1, choices=CLIENT_STATUS_CHOICES)
+    status = models.CharField(verbose_name="Статус", help_text="Статус", max_length=80,
+                              blank=True, null=True)
     rating = models.FloatField(verbose_name="Рейтинг", help_text="Рейтинг")
     follows = models.ManyToManyField("self", verbose_name="Подписки", help_text="Подписки", null=True,
                                      symmetrical=False, related_name="followers", blank=True)
@@ -60,3 +61,5 @@ class Lot(models.Model):
                               help_text="Покупатели лота", related_name="lots_bought", null=True)
     likes = models.ManyToManyField(Client, verbose_name="Лайкнули", help_text="Лайкнули", related_name="liked",
                                    blank=True, null=True)
+    status = models.CharField(verbose_name="Статус лота", help_text="Статус лота", choices=LOT_STATUS_CHOICES,
+                              max_length=1)
