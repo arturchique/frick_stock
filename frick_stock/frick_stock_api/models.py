@@ -50,10 +50,13 @@ class Price(models.Model):
 class Lot(models.Model):
     name = models.CharField(verbose_name="Название лота", help_text="Название лота", max_length=100)
     description = models.TextField(verbose_name="Описание лота", help_text="Описание лота")
-    media = models.OneToOneField(Photos, on_delete=models.CASCADE, verbose_name="Фотографии", help_text="Фотографии")
-    price = models.OneToOneField(Price, on_delete=models.CASCADE, verbose_name="Цена", help_text="Цена")
+    media = models.OneToOneField(Photos, on_delete=models.CASCADE, verbose_name="Фотографии", help_text="Фотографии",
+                                 blank=True, null=True)
+    price = models.OneToOneField(Price, on_delete=models.CASCADE, verbose_name="Цена", help_text="Цена",
+                                 blank=True, null=True)
     owner = models.OneToOneField(Client, on_delete=models.CASCADE, verbose_name="Владелец лота",
                                  help_text="Владец лота")
-    buyer = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name="Покупатели лота",
-                              help_text="Покупатели лота", related_name="lots_bought")
-    likes = models.ManyToManyField(Client, verbose_name="Лайкнули", help_text="Лайкнули", related_name="liked")
+    buyer = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name="Покупатели лота", blank=True,
+                              help_text="Покупатели лота", related_name="lots_bought", null=True)
+    likes = models.ManyToManyField(Client, verbose_name="Лайкнули", help_text="Лайкнули", related_name="liked",
+                                   blank=True, null=True)

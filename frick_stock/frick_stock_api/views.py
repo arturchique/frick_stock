@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Count
 from django.shortcuts import render
+from django.core.paginator import Paginator
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import *
@@ -14,6 +16,7 @@ class HelloView(APIView):
 
 class FollowsView(APIView):
     """ Методы для работы с подписками и подписчиками """
+
     def get(self, request):
         """ Возвращает список подписок и подписчиков пользователя """
         user = request.user
@@ -44,6 +47,7 @@ class FollowsView(APIView):
 
 class ClientDetailView(APIView):
     """ Методы для работы с информацией о пользователе """
+
     def get(self, request):
         """ Возвращает информацию о заданном пользователе """
         client_id = request.GET.get("id", "")
@@ -52,12 +56,12 @@ class ClientDetailView(APIView):
         except ValueError:
             return Response({
                 "status": "error",
-                "error": "Пропущен параметр -- id пользователя (id=...)"
+                "data": "Пропущен параметр -- id пользователя (id=...)"
             })
         except ObjectDoesNotExist:
             return Response({
                 "status": "error",
-                "error": "Пользователя с заданными параметрами не существует"
+                "data": "Пользователя с заданными параметрами не существует"
             })
 
         serializer = ClientSerializer(client)
@@ -69,6 +73,7 @@ class ClientDetailView(APIView):
 
 class LotDetailView(APIView):
     """ Методы для работы с информацией о лотах """
+
     def get(self, request):
         """ Возвращает информацию о заданном лоте """
         lot_id = request.GET.get("id", "")
@@ -77,16 +82,73 @@ class LotDetailView(APIView):
         except ValueError:
             return Response({
                 "status": "error",
-                "error": "Пропущен параметр -- id лота (id=...)"
+                "data": "Пропущен параметр -- id лота (id=...)"
             })
         except ObjectDoesNotExist:
             return Response({
                 "status": "error",
-                "error": "Лота с заданными параметрами не существует"
+                "data": "Лота с заданными параметрами не существует"
             })
 
         serializer = LotSerializer(lot)
         return Response({
             "status": "ok",
             "data": serializer.data
+        })
+
+
+class LotFilterView(APIView):
+    """ Класс отвечающий за фильтрацию и поиск лотов """
+
+    def post(self, request):
+        """ Возвращает отфильтрованные лоты или список фильтров с вариантами """
+        try:
+            search_request = request.data["search"]
+            page = request.data["page"] or 1
+            filters = request.data["filters"]
+        except KeyError:
+            return Response({
+                "status": "error",
+                "data": "Пропущен один или несколько обязательных параметров (search, page, filters)"
+            })
+
+        if not filters:
+            # Возвращает список фильтров и неотфильтрованные лоты, если фильтры не заданы клиентом
+            lots = Lot.objects.filter(name__icontains=search_request)
+            paginator = Paginator(lots, 15)
+            paged_listings = paginator.get_page(page)
+            serializer = LotSerializer(paged_listings, many=True)
+            return Response({
+                "status": "ok",
+                "data": {
+                    "filters": {
+                        "price": {
+                            "from": 0,
+                            "to": 100000,
+                        },
+                        "likes": {
+                            "from": 0,
+                            "to": 10000,
+                        },
+                    },
+                    "lots": serializer.data,
+                    "total_page_count": paginator.num_pages
+                }
+            })
+        # Код далее не выполнится, если от клиента поступил запрос с пустыми фильтрами
+        lots = Lot.objects.annotate(num_likes=Count('likes')).filter(price__needed__gte=filters["price"]["from"],
+                                                                     num_likes__gte=filters["likes"]["from"],
+                                                                     price__needed__lte=filters["price"]["to"],
+                                                                     num_likes__lte=filters["likes"]["to"],
+                                                                     name_icontains=search_request)
+        paginator = Paginator(lots, 15)
+        paged_listings = paginator.get_page(page)
+        serializer = LotSerializer(paged_listings, many=True)
+        return Response({
+            "status": "ok",
+            "data": {
+                "filters": filters,
+                "lots": serializer.data,
+                "total_page_count": paginator.num_pages
+            }
         })
