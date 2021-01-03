@@ -180,7 +180,7 @@ class LotFilterView(APIView):
         if not filters:
             # Возвращает список фильтров и неотфильтрованные лоты, если фильтры не заданы клиентом
             lots = Lot.objects.filter(name__icontains=search_request)
-            paginator = Paginator(lots, 15)
+            paginator = Paginator(lots, 1)
             paged_listings = paginator.get_page(page)
             serializer = LotSerializer(paged_listings, many=True)
             return Response({
