@@ -2,6 +2,10 @@ from django.db import models
 import uuid
 from django.contrib.auth import get_user_model
 from datetime import datetime
+from django.db.models.signals import post_save
+
+from django.dispatch import receiver
+from django.contrib.auth.models import User
 
 USER = get_user_model()
 
@@ -34,11 +38,24 @@ class Client(models.Model):
     about = models.TextField(verbose_name="Информация о профиле", help_text="Информация о профиле")
     photos = models.OneToOneField(Photos, verbose_name="Фотографии", help_text="Фотографии",
                                   on_delete=models.CASCADE, blank=True, null=True)
+
     def __str__(self):
         return self.name
 
     def __repr__(self):
         return self.name
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Client.objects.create(user=instance, name=instance.username, rating=0, bio="Всем привет, я на Frickstock",
+                              about="inst: ...")
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.client.save()
 
 
 class Price(models.Model):
