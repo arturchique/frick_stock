@@ -216,7 +216,7 @@ class LotFilterView(APIView):
                                                                       # price__needed__lte=filters["price"]["to"],
                                                                       num_likes__lte=filters["likes"]["to"],
                                                                       name__icontains=search_request.lower())
-        paginator = Paginator(lots, 15)
+        paginator = Paginator(lots, 1)
         paged_listings = paginator.get_page(page)
         serializer = LotSerializer(paged_listings, many=True)
         return Response({
