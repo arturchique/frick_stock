@@ -110,18 +110,18 @@ class ClientFilterView(APIView):
                 }
             })
         # Код далее не выполнится, если от клиента поступил запрос с пустыми фильтрами
-        status = (key for key, value in filters["status"] if value is True)
-        clients = Client.objects.filter(status__in=status,
+        # status = [key for key, value in filters["status"] if value is True]
+        clients = Client.objects.filter(#status__in=status,
                                         rating__gte=filters["rating"]["from"],
-                                        reting__lte=filters["rating"]["to"],
+                                        rating__lte=filters["rating"]["to"],
                                         name__icontains=search_request)
-        clients |= Client.objects.filter(status__in=status,
+        clients |= Client.objects.filter(#status__in=status,
                                          rating__gte=filters["rating"]["from"],
-                                         reting__lte=filters["rating"]["to"],
+                                         rating__lte=filters["rating"]["to"],
                                          name__icontains=search_request.lower())
-        clients |= Client.objects.filter(status__in=status,
+        clients |= Client.objects.filter(#status__in=status,
                                          rating__gte=filters["rating"]["from"],
-                                         reting__lte=filters["rating"]["to"],
+                                         rating__lte=filters["rating"]["to"],
                                          name__icontains=search_request.upper())
         paginator = Paginator(clients, 15)
         paged_listings = paginator.get_page(page)
