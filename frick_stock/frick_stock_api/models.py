@@ -31,6 +31,7 @@ class Client(models.Model):
     name = models.CharField(verbose_name="Имя", help_text="Имя", max_length=40)
     status = models.CharField(verbose_name="Статус", help_text="Статус", max_length=80,
                               blank=True, null=True)
+    city = models.TextField(verbose_name="Город", help_text="Город", null=True, blank=True)
     rating = models.FloatField(verbose_name="Рейтинг", help_text="Рейтинг")
     follows = models.ManyToManyField("self", verbose_name="Подписки", help_text="Подписки", null=True,
                                      symmetrical=False, related_name="followers", blank=True)
@@ -38,6 +39,7 @@ class Client(models.Model):
     about = models.TextField(verbose_name="Информация о профиле", help_text="Информация о профиле")
     photos = models.OneToOneField(Photos, verbose_name="Фотографии", help_text="Фотографии",
                                   on_delete=models.CASCADE, blank=True, null=True)
+    balance = models.FloatField(max_length=3, verbose_name="Баланс", help_text="Баланс", null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -72,8 +74,8 @@ class Lot(models.Model):
                                  blank=True, null=True)
     price = models.OneToOneField(Price, on_delete=models.CASCADE, verbose_name="Цена", help_text="Цена",
                                  blank=True, null=True)
-    owner = models.OneToOneField(Client, on_delete=models.CASCADE, verbose_name="Владелец лота",
-                                 help_text="Владец лота")
+    owner = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name="Владелец лота",
+                              help_text="Владец лота")
     buyer = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name="Покупатели лота", blank=True,
                               help_text="Покупатели лота", related_name="lots_bought", null=True)
     likes = models.ManyToManyField(Client, verbose_name="Лайкнули", help_text="Лайкнули", related_name="liked",

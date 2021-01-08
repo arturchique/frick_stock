@@ -63,12 +63,23 @@ class ClientDetailView(APIView):
                 "status": "error",
                 "data": "Пользователя с заданными параметрами не существует"
             })
-
-        serializer = ClientSerializer(client)
-        return Response({
-            "status": "ok",
-            "data": serializer.data
-        })
+        if client.user == request.user:
+            lots = client.lot_set.all()
+            client_serializer = CurrentClientSerializer(client)
+            lots_serializer = LotSerializer(lots, many=True)
+            return Response({
+                "status": "ok",
+                "data": {
+                    "user": client_serializer.data,
+                    "lots": lots_serializer.data,
+                }
+            })
+        else:
+            serializer = ClientSerializer(client)
+            return Response({
+                "status": "ok",
+                "data": serializer.data
+            })
 
 
 class ClientFilterView(APIView):
