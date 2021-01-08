@@ -50,9 +50,10 @@ class ClientDetailView(APIView):
 
     def get(self, request):
         """ Возвращает информацию о заданном пользователе """
-        client_id = request.GET.get("id", "")
         try:
-            client = Client.objects.get(id=client_id)
+            user_id = request.GET.get("id", "")
+            user = USER.objects.get(id=user_id)
+            client = Client.objects.get(user=user)
         except ValueError:
             return Response({
                 "status": "error",
